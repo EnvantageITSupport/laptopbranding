@@ -1,17 +1,13 @@
-# Apply wallpaper for current user
+# Apply wallpaper - interactive session version
 $wallpaperPath = "C:\Windows\Web\Wallpaper\Company\wallpaper.jpg"
 
+# Set registry
 Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $wallpaperPath -Force
 Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value "2" -Force
 
-Add-Type -TypeDefinition @"
-using System;
-using System.Runtime.InteropServices;
-public class Wallpaper {
-    [DllImport("user32.dll", CharSet = CharSet.Auto)]
-    public static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
-}
-"@
+# Force immediate refresh by killing and restarting explorer
+Stop-Process -Name explorer -Force
+Start-Sleep -Seconds 2
 
-[Wallpaper]::SystemParametersInfo(0x0014, 0, $wallpaperPath, 0x0001 -bor 0x0002)
+# Explorer will restart automatically and load the new wallpaper
 Write-Host "Wallpaper applied"
